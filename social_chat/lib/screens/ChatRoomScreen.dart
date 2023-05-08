@@ -158,6 +158,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                         vertical: 8,
                         horizontal: 16,
                       ),
+                      hintText: "Nhắn tin",
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(18)),
                       filled: true,

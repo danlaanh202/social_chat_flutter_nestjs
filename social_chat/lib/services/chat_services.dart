@@ -76,8 +76,6 @@ class ChatServices {
     );
     if (response.statusCode == 200) {
       return ChatRoom.fromJson(jsonDecode(response.body));
-      // Map<String, dynamic> responseBody = jsonDecode(response.body);
-      // return responseBody;
     } else if (response.statusCode == 401) {
       AuthServices.handle401Error();
     } else {

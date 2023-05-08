@@ -29,7 +29,8 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
   }
 
   _callApiUsers(String searchQuery) {
-    FriendServices.searchUsers(searchQuery: searchQuery).then((data) {
+    FriendServices.searchUsers(searchQuery: searchQuery, typeIndex: _typeIndex)
+        .then((data) {
       setState(() {
         _users = data;
       });
@@ -103,51 +104,57 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
           Padding(
             padding:
                 const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 4),
-            child: Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _typeIndex = 0;
-                    });
-                  },
-                  style: _buttonStyle(0),
-                  child: Text(
-                    "All",
-                    style: _textStyle(0),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _typeIndex = 0;
+                        _callApiUsers(_searchController.text);
+                      });
+                    },
+                    style: _buttonStyle(0),
+                    child: Text(
+                      "All",
+                      style: _textStyle(0),
+                    ),
                   ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _typeIndex = 1;
-                    });
-                  },
-                  style: _buttonStyle(1),
-                  child: Text(
-                    "Sent requests",
-                    style: _textStyle(1),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 4),
                   ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _typeIndex = 2;
-                    });
-                  },
-                  style: _buttonStyle(2),
-                  child: Text(
-                    'Received requests',
-                    style: _textStyle(2),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _typeIndex = 1;
+                        _callApiUsers(_searchController.text);
+                      });
+                    },
+                    style: _buttonStyle(1),
+                    child: Text(
+                      "Sent requests",
+                      style: _textStyle(1),
+                    ),
                   ),
-                )
-              ],
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 4),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _typeIndex = 2;
+                        _callApiUsers(_searchController.text);
+                      });
+                    },
+                    style: _buttonStyle(2),
+                    child: Text(
+                      'Received requests',
+                      style: _textStyle(2),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
           Expanded(
@@ -227,11 +234,11 @@ class SearchUserItem extends StatelessWidget {
       case "FRIEND":
         return "Remove Friend";
       case "NO_STATUS":
-        return "Add Friend";
+        return "Send request";
       case "RECEIVED":
         return "Accept";
       case "SENT":
-        return "Thu hồi";
+        return "Cancel";
 
       default:
         return "";
@@ -241,7 +248,7 @@ class SearchUserItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: 12, right: 16, left: 16),
+      padding: const EdgeInsets.only(top: 12, right: 16, left: 16),
       child: Row(
         children: [
           Container(

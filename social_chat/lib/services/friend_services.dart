@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:social_chat/models/friend.model.dart';
 import 'package:http/http.dart' as http;
+import 'package:social_chat/models/friend_request.model.dart';
 import 'package:social_chat/services/auth_services.dart';
 import 'package:social_chat/services/shared_pref_service.dart';
 
@@ -37,13 +38,31 @@ class FriendServices {
     }
   }
 
-  static Future<List<Friend>> searchUsers({String searchQuery = ""}) async {
+  static Future<List<Friend>> searchUsers({
+    String searchQuery = "",
+    int? typeIndex = 0,
+  }) async {
     String? accessToken =
         await SharedPreferencesServices.getData("accessToken");
     String? userId = await SharedPreferencesServices.getData("userId");
+
+    String urlString() {
+      switch (typeIndex) {
+        case 0:
+          return '$_baseUrl/user/search?my_id=$userId&search_query=$searchQuery';
+        case 1:
+          return '$_baseUrl/user/search_sent_users?my_id=$userId&search_query=$searchQuery';
+        case 2:
+          return '$_baseUrl/user/search_received_users?my_id=$userId&search_query=$searchQuery';
+        default:
+          return '$_baseUrl/user/search?my_id=$userId&search_query=$searchQuery';
+      }
+    }
+
     final response = await http.get(
       Uri.parse(
-          '$_baseUrl/user/search?my_id=$userId&search_query=$searchQuery'),
+        urlString(),
+      ),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         "Authorization": "Bearer $accessToken",
@@ -58,6 +77,31 @@ class FriendServices {
     } else {
       throw Exception(
           "Failed to load friends ${response.statusCode} $userId $accessToken");
+    }
+  }
+
+  static Future<FriendRequest?> sendFriendRequest(
+      {required String recipientId}) async {
+    String apiUrl = "$_baseUrl/friend/send";
+    String? accessToken =
+        await SharedPreferencesServices.getData("accessToken");
+    String? userId = await SharedPreferencesServices.getData("userId");
+    final response =
+        await http.post(Uri.parse(apiUrl), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      "Authorization": "Bearer $accessToken",
+    }, body: {
+      "requester_id": userId,
+      "recipient_id": recipientId,
+    });
+    if (response.statusCode == 201) {
+      return FriendRequest.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 401) {
+      AuthServices.handle401Error();
+      throw Exception(
+          "Failed to load friends ${response.statusCode} $userId $accessToken");
+    } else {
+      throw Exception("Lỗi ở send friend request");
     }
   }
 }

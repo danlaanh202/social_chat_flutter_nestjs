@@ -154,4 +154,76 @@ export class UserService {
       throw new Error(error);
     }
   }
+  async searchSentUsers(searchQuery: string, userId: string) {
+    try {
+      const sentUsers = await this.prismaService.user.findUnique({
+        where: {
+          id: userId,
+        },
+        include: {
+          sent_friend_requests: {
+            where: {
+              AND: [
+                { status: 'PENDING' },
+                {
+                  recipient: {
+                    username: {
+                      contains: searchQuery,
+                    },
+                  },
+                },
+              ],
+            },
+            select: {
+              recipient: true,
+            },
+          },
+        },
+      });
+      return sentUsers.sent_friend_requests.map((item) => ({
+        id: item.recipient.id,
+        username: item.recipient.username,
+        email: item.recipient.email,
+        friend_status: 'SENT',
+      }));
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+  async searchReceivedUsers(searchQuery: string, userId: string) {
+    try {
+      const receivedUser = await this.prismaService.user.findUnique({
+        where: {
+          id: userId,
+        },
+        include: {
+          received_friend_requests: {
+            where: {
+              AND: [
+                { status: 'PENDING' },
+                {
+                  requester: {
+                    username: {
+                      contains: searchQuery,
+                    },
+                  },
+                },
+              ],
+            },
+            select: {
+              requester: true,
+            },
+          },
+        },
+      });
+      return receivedUser.received_friend_requests.map((item) => ({
+        id: item.requester.id,
+        username: item.requester.username,
+        email: item.requester.email,
+        friend_status: 'RECEIVED',
+      }));
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }
