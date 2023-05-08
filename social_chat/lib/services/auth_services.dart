@@ -27,6 +27,8 @@ class AuthServices {
       SharedPreferencesServices.saveData("username", responseBody["username"]);
       SharedPreferencesServices.saveData("email", responseBody["email"]);
       return responseBody['accessToken'];
+    } else if (response.statusCode == 401) {
+      handle401Error();
     } else {
       throw Exception(
           'Failed to login. Status code: ${response.statusCode}. Error: ${response.reasonPhrase}.');
@@ -55,6 +57,8 @@ class AuthServices {
     if (response.statusCode == 201) {
       Map<String, dynamic> responseBody = jsonDecode(response.body);
       return responseBody['id'];
+    } else if (response.statusCode == 401) {
+      handle401Error();
     } else {
       throw Exception(
           'Failed to login. Status code: ${response.statusCode}. Error: ${response.reasonPhrase}.');
@@ -64,5 +68,9 @@ class AuthServices {
   static Future<bool> isLoggedIn() async {
     final accessToken = await SharedPreferencesServices.getData("accessToken");
     return accessToken != null;
+  }
+
+  static handle401Error() {
+    logout();
   }
 }

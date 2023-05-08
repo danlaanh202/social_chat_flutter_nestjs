@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:social_chat/constants/social_colors.dart';
 import 'package:social_chat/models/DarkModeModel.dart';
 import 'package:social_chat/models/friend.model.dart';
+import 'package:social_chat/services/debounce.dart';
 import 'package:social_chat/services/friend_services.dart';
 import 'package:social_chat/widget/MySquareButton.dart';
 
@@ -16,40 +17,36 @@ class UserSearchScreen extends StatefulWidget {
 }
 
 class _UserSearchScreenState extends State<UserSearchScreen> {
-  final _searchController = TextEditingController();
-  String _searchQuery = '';
   List<Friend> _users = [];
+  int _typeIndex = 0;
+  final _searchController = TextEditingController();
+  static final Debouncer debouncer = Debouncer(milliseconds: 500);
   @override
   void initState() {
     super.initState();
-    _searchQuery = _searchController.text;
-    FriendServices.searchUsers(searchQuery: "").then((data) {
+    _callApiUsers("");
+    _searchController.addListener(_onSearchQueryChanged);
+  }
+
+  _callApiUsers(String searchQuery) {
+    FriendServices.searchUsers(searchQuery: searchQuery).then((data) {
       setState(() {
         _users = data;
       });
     });
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _searchController.dispose();
+  _onSearchQueryChanged() {
+    debouncer.run(() {
+      _callApiUsers(_searchController.text);
+    });
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _searchController.addListener(() {
-      if (_searchController.text != _searchQuery) {
-        setState(() {
-          _searchQuery = _searchController.text;
-          FriendServices.searchUsers(searchQuery: _searchController.text)
-              .then((data) {
-            _users = data;
-          });
-        });
-      }
-    });
+  void dispose() {
+    _searchController.removeListener(_onSearchQueryChanged);
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -109,58 +106,15 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
             child: Row(
               children: [
                 ElevatedButton(
-                  onPressed: () {},
-                  style: ButtonStyle(
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18.0),
-                        side: const BorderSide(color: Colors.blue),
-                      ),
-                    ),
-                    overlayColor: MaterialStateProperty.resolveWith(
-                      (states) {
-                        return states.contains(MaterialState.pressed)
-                            ? Color.fromARGB(255, 223, 236, 247)
-                            : null;
-                      },
-                    ),
-                    backgroundColor: MaterialStateProperty.all(Colors.white),
-                  ),
-                  child: const Text(
+                  onPressed: () {
+                    setState(() {
+                      _typeIndex = 0;
+                    });
+                  },
+                  style: _buttonStyle(0),
+                  child: Text(
                     "All",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4),
-                ),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ButtonStyle(
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18.0),
-                        side: BorderSide(color: Colors.blue),
-                      ),
-                    ),
-                    overlayColor: MaterialStateProperty.resolveWith(
-                      (states) {
-                        return states.contains(MaterialState.pressed)
-                            ? Color.fromARGB(255, 223, 236, 247)
-                            : null;
-                      },
-                    ),
-                    backgroundColor: MaterialStateProperty.all(Colors.white),
-                  ),
-                  child: const Text(
-                    "Sent requests",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: _textStyle(0),
                   ),
                 ),
                 const Padding(
@@ -168,25 +122,30 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // Thực hiện một hành động nào đó khi button được chạm vào
+                    setState(() {
+                      _typeIndex = 1;
+                    });
                   },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(Colors.blue),
-                    overlayColor: MaterialStateProperty.resolveWith(
-                      (states) {
-                        return states.contains(MaterialState.pressed)
-                            ? Color.fromARGB(255, 87, 182, 250)
-                            : null;
-                      },
-                    ),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18.0),
-                        side: const BorderSide(color: Colors.blue),
-                      ),
-                    ),
+                  style: _buttonStyle(1),
+                  child: Text(
+                    "Sent requests",
+                    style: _textStyle(1),
                   ),
-                  child: Text('Received requests'),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _typeIndex = 2;
+                    });
+                  },
+                  style: _buttonStyle(2),
+                  child: Text(
+                    'Received requests',
+                    style: _textStyle(2),
+                  ),
                 )
               ],
             ),
@@ -197,21 +156,87 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                 itemCount: _users.length,
                 itemBuilder: (ctx, index) {
                   return SearchUserItem(
-                      username: _users[index].username,
-                      status: _users[index].friendStatus);
+                    user: _users[index],
+                  );
                 }),
           )
         ],
       ),
     );
   }
+
+  TextStyle _textStyle(int id) {
+    if (_typeIndex == id) {
+      return const TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+      );
+    } else {
+      return const TextStyle(
+        color: Colors.black,
+        fontWeight: FontWeight.bold,
+      );
+    }
+  }
+
+  ButtonStyle _buttonStyle(int id) {
+    if (_typeIndex == id) {
+      return ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(Colors.blue),
+        overlayColor: MaterialStateProperty.resolveWith(
+          (states) {
+            return states.contains(MaterialState.pressed)
+                ? const Color.fromARGB(255, 87, 182, 250)
+                : null;
+          },
+        ),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18.0),
+            side: const BorderSide(color: Colors.blue),
+          ),
+        ),
+      );
+    } else {
+      return ButtonStyle(
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18.0),
+            side: const BorderSide(color: Colors.blue),
+          ),
+        ),
+        overlayColor: MaterialStateProperty.resolveWith(
+          (states) {
+            return states.contains(MaterialState.pressed)
+                ? const Color.fromARGB(255, 223, 236, 247)
+                : null;
+          },
+        ),
+        backgroundColor: MaterialStateProperty.all(Colors.white),
+      );
+    }
+  }
 }
 
 class SearchUserItem extends StatelessWidget {
-  final String? username;
-  final String? status;
-  const SearchUserItem({Key? key, required this.username, required this.status})
-      : super(key: key);
+  final Friend user;
+  const SearchUserItem({Key? key, required this.user}) : super(key: key);
+
+  String _friendStatusText(String friendStatus) {
+    switch (friendStatus) {
+      case "FRIEND":
+        return "Remove Friend";
+      case "NO_STATUS":
+        return "Add Friend";
+      case "RECEIVED":
+        return "Accept";
+      case "SENT":
+        return "Thu hồi";
+
+      default:
+        return "";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -230,7 +255,7 @@ class SearchUserItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  username!,
+                  user.username!,
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w600),
                 ),
@@ -243,8 +268,10 @@ class SearchUserItem extends StatelessWidget {
                 backgroundColor: MaterialStateProperty.all(Colors.blue)),
             child: Text(
               // "Add friend",
-              status!,
-              style: const TextStyle(color: Colors.white),
+              _friendStatusText(user.friendStatus!),
+              style: const TextStyle(
+                color: Colors.white,
+              ),
             ),
           )
         ],

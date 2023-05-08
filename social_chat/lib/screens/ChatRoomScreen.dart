@@ -42,7 +42,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             children: [
               IconButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pushNamed(context, "/home");
                 },
                 icon: Icon(
                   Icons.arrow_back,

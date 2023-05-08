@@ -18,15 +18,4 @@ class SharedPreferencesServices {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove(key);
   }
-
-  // static Future<Auth> getAuthData() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final authJson = prefs.getString('auth');
-  //   if (authJson != null) {
-  //     final auth = Auth.fromJson(jsonDecode(authJson));
-  //     return auth;
-  //   } else {
-  //     return Auth();
-  //   }
-  // }
 }

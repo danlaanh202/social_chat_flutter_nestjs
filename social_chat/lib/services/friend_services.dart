@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:social_chat/models/friend.model.dart';
 import 'package:http/http.dart' as http;
+import 'package:social_chat/services/auth_services.dart';
 import 'package:social_chat/services/shared_pref_service.dart';
 
 class FriendServices {
@@ -26,6 +27,10 @@ class FriendServices {
     );
     if (response.statusCode == 200) {
       return parseFriend(response.body);
+    } else if (response.statusCode == 401) {
+      AuthServices.handle401Error();
+      throw Exception(
+          "Failed to load friends ${response.statusCode} $userId $accessToken");
     } else {
       throw Exception(
           "Failed to load friends ${response.statusCode} $userId $accessToken");
@@ -46,6 +51,10 @@ class FriendServices {
     );
     if (response.statusCode == 200) {
       return parseFriend(response.body);
+    } else if (response.statusCode == 401) {
+      AuthServices.handle401Error();
+      throw Exception(
+          "Failed to load friends ${response.statusCode} $userId $accessToken");
     } else {
       throw Exception(
           "Failed to load friends ${response.statusCode} $userId $accessToken");

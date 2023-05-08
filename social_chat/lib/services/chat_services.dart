@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:social_chat/models/chatRoom.model.dart';
+import 'package:social_chat/services/auth_services.dart';
 import 'package:social_chat/services/shared_pref_service.dart';
 
 class ChatServices {
@@ -34,6 +35,8 @@ class ChatServices {
     if (response.statusCode == 201) {
       Map<String, dynamic> responseBody = jsonDecode(response.body);
       return responseBody['id'];
+    } else if (response.statusCode == 401) {
+      AuthServices.handle401Error();
     } else {
       throw Exception("Can not create chat, ${response.statusCode}");
     }
@@ -52,6 +55,8 @@ class ChatServices {
     );
     if (response.statusCode == 200) {
       return parseChatRoom(response.body);
+    } else if (response.statusCode == 401) {
+      AuthServices.handle401Error();
     } else {
       throw Exception(
           "Failed to load friends ${response.statusCode} $userId $accessToken");
@@ -73,6 +78,8 @@ class ChatServices {
       return ChatRoom.fromJson(jsonDecode(response.body));
       // Map<String, dynamic> responseBody = jsonDecode(response.body);
       // return responseBody;
+    } else if (response.statusCode == 401) {
+      AuthServices.handle401Error();
     } else {
       throw Exception("Failed to get chat room ${response.statusCode}");
     }

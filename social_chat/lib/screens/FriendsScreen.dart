@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:social_chat/models/friend.model.dart';
 import 'package:social_chat/screens/UserSearchScreen.dart';
 import 'package:social_chat/services/auth_services.dart';
+import 'package:social_chat/services/debounce.dart';
 import 'package:social_chat/services/friend_services.dart';
 import 'package:social_chat/services/shared_pref_service.dart';
 import 'package:social_chat/widget/FriendOptionsBottomDialog.dart';
@@ -47,41 +50,22 @@ class FriendsScreen extends StatefulWidget {
 }
 
 class _FriendsScreenState extends State<FriendsScreen> {
-  final _searchQueryController = TextEditingController();
-  String _searchQuery = '';
   List<Friend> _friends = [];
+  final _searchController = TextEditingController();
+  static final Debouncer debouncer = Debouncer(milliseconds: 500);
+
   @override
   void initState() {
     super.initState();
-    _searchQuery = _searchQueryController.text;
-    FriendServices.searchFriends(searchQuery: "").then((data) {
-      setState(() {
-        _friends = data;
-      });
-    });
+    _callApiFriend("");
+    _searchController.addListener(_onSearchQueryChanged);
   }
 
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchQueryChanged);
+    _searchController.dispose();
     super.dispose();
-    _searchQueryController.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _searchQueryController.addListener(() {
-      if (_searchQueryController.text != _searchQuery) {
-        setState(() {
-          _searchQuery = _searchQueryController.text;
-          FriendServices.searchFriends(searchQuery: _searchQueryController.text)
-              .then((data) {
-            print(data[0].username);
-            _friends = data;
-          });
-        });
-      }
-    });
   }
 
   @override
@@ -146,7 +130,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
             child: TextField(
-              controller: _searchQueryController,
+              controller: _searchController,
+              // onChanged: (value) {
+              //   _callApiFriend(value);
+              // },
               decoration: InputDecoration(
                   hintText: "Search friends",
                   hintStyle: const TextStyle(fontSize: 14),
@@ -187,6 +174,20 @@ class _FriendsScreenState extends State<FriendsScreen> {
         ],
       ),
     );
+  }
+
+  _onSearchQueryChanged() {
+    debouncer.run(() {
+      _callApiFriend(_searchController.text);
+    });
+  }
+
+  _callApiFriend(String searchQuery) {
+    FriendServices.searchFriends(searchQuery: searchQuery).then((data) {
+      setState(() {
+        _friends = data;
+      });
+    });
   }
 }
 
