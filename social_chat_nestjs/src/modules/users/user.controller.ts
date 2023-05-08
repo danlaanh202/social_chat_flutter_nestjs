@@ -14,7 +14,7 @@ export class UserController {
   @Get('/get_all_friends')
   @UseGuards(AuthGuard('jwt'))
   getAllFriends(@Query() params: any) {
-    return this.userService.getMyFriends(params.my_id);
+    return this.userService.getMyFriends(params.my_id, params.search_query);
   }
   @Get('/search')
   @UseGuards(AuthGuard('jwt'))

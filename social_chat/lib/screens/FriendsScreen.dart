@@ -76,6 +76,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
           _searchQuery = _searchQueryController.text;
           FriendServices.searchFriends(searchQuery: _searchQueryController.text)
               .then((data) {
+            print(data[0].username);
             _friends = data;
           });
         });

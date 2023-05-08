@@ -17,7 +17,7 @@ export class UserService {
       throw new Error('Something happened with api');
     }
   }
-  async getMyFriends(userId: string) {
+  async getMyFriends(userId: string, _searchQuery = '') {
     try {
       const friends = await this.prismaService.user.findUnique({
         where: {
@@ -26,7 +26,16 @@ export class UserService {
         include: {
           sent_friend_requests: {
             where: {
-              status: 'ACCEPTED',
+              AND: [
+                { status: 'ACCEPTED' },
+                {
+                  recipient: {
+                    username: {
+                      contains: _searchQuery,
+                    },
+                  },
+                },
+              ],
             },
             include: {
               recipient: true, // thông tin về recipient (user đã nhận yêu cầu kết bạn)
@@ -34,7 +43,16 @@ export class UserService {
           },
           received_friend_requests: {
             where: {
-              status: 'ACCEPTED',
+              AND: [
+                { status: 'ACCEPTED' },
+                {
+                  requester: {
+                    username: {
+                      contains: _searchQuery,
+                    },
+                  },
+                },
+              ],
             },
             include: {
               requester: true, // thông tin về requester (user đã gửi yêu cầu kết bạn)

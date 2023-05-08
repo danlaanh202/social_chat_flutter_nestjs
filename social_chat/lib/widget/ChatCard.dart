@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:social_chat/constants/social_colors.dart';
 import 'package:social_chat/constants/social_strings.dart';
 import 'package:social_chat/models/DarkModeModel.dart';
+import 'package:social_chat/models/chatRoom.model.dart';
 import 'package:social_chat/screens/ChatRoomScreen.dart';
 
 class ChatCard extends StatelessWidget {
   final DarkModeModel darkModeModel;
-  final String chatRoomId;
+
+  final ChatRoom chatRoom;
   const ChatCard(
-      {Key? key, required this.darkModeModel, required this.chatRoomId})
+      {Key? key, required this.darkModeModel, required this.chatRoom})
       : super(key: key);
 
   @override
@@ -18,7 +20,7 @@ class ChatCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => ChatRoomScreen(roomId: chatRoomId)),
+              builder: (context) => ChatRoomScreen(roomId: chatRoom.id!)),
         );
       },
       child: Container(
@@ -43,12 +45,12 @@ class ChatCard extends StatelessWidget {
                     Expanded(
                       child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
-                              "Justinbieber",
-                              style: TextStyle(),
+                              chatRoom.members![0].user!.username!,
+                              style: const TextStyle(),
                             ),
-                            Text(
+                            const Text(
                               "Hi, how are you",
                               style: TextStyle(color: socialTextColorSecondary),
                             ),

@@ -18,6 +18,7 @@ model User {
   password      String
   email         String        @unique
   created_at    DateTime      @default(now())
+  updated_at    DateTime?      @updatedAt
   chats         Chat[]        @relation("members")
   sent_messages Message[]     @relation("sender")
   received_friend_requests FriendRequest[] @relation("recipient")
@@ -29,6 +30,8 @@ model User {
 model Chat {
   id         String      @id @default(uuid())
   name       String
+  created_at    DateTime      @default(now())
+  updated_at    DateTime?      @updatedAt
   created_by_id String
   created_by User     @relation("members" ,fields: [created_by_id], references: [id])
   members    Member[]
@@ -40,6 +43,8 @@ model Member {
   id      String    @id @default(uuid())
   user_id String
   chat_id String
+  created_at    DateTime      @default(now())
+  updated_at    DateTime?      @updatedAt
   user    User   @relation(fields: [user_id], references: [id])
   chat    Chat   @relation(fields: [chat_id], references: [id])
   @@map("members")
@@ -50,9 +55,10 @@ model Message {
   content    String
   chat_id    String
   sender_id  String
+  created_at    DateTime      @default(now())
+  updated_at    DateTime?      @updatedAt
   chat       Chat     @relation(fields: [chat_id], references: [id])
   sender     User     @relation("sender",fields: [sender_id], references: [id])
-  created_at DateTime @default(now())
   @@map("messages")
 }
 
@@ -61,7 +67,8 @@ model FriendRequest {
   requester_id String
   recipient_id String
   status       String
-  created_at   DateTime @default(now())
+  created_at    DateTime      @default(now())
+  updated_at    DateTime?      @updatedAt
   requester   User   @relation("requester",fields: [requester_id], references: [id])
   recipient   User   @relation("recipient",fields: [recipient_id], references: [id])
   @@map("friend_requests")

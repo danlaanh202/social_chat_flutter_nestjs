@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:social_chat/constants/social_colors.dart';
 // import 'package:social_chat/constants/social_strings.dart';
 import 'package:social_chat/models/DarkModeModel.dart';
+import 'package:social_chat/models/chatRoom.model.dart';
+import 'package:social_chat/services/chat_services.dart';
 
 // import 'package:social_chat/widget/MySquareButton.dart';
 import 'package:social_chat/widget/chat_list/ChatScreen.dart';
@@ -15,9 +17,15 @@ class ChatRoomScreen extends StatefulWidget {
 }
 
 class _ChatRoomScreenState extends State<ChatRoomScreen> {
+  ChatRoom? _chatRoom;
   @override
   void initState() {
     super.initState();
+    ChatServices.getChatRoom(widget.roomId).then((value) {
+      setState(() {
+        _chatRoom = value;
+      });
+    });
   }
 
   @override
@@ -36,8 +44,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                // padding: EdgeInsets.zero,
-                // constraints: BoxConstraints(),
                 icon: Icon(
                   Icons.arrow_back,
                   color: model.isDarkMode
@@ -71,7 +77,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Tran Thai Dan",
+                            _chatRoom?.members?[0].user?.username ??
+                                "Recipient",
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,

@@ -6,6 +6,41 @@ export class ChatService {
   constructor(private prismaService: PrismaService) {}
   async createChat(body: any) {
     try {
+      const existedChat = await this.prismaService.chat.findFirst({
+        where: {
+          AND: [
+            {
+              members: {
+                some: {
+                  user_id: body.my_id,
+                },
+              },
+            },
+            {
+              members: {
+                some: {
+                  user_id: body.recipient_id,
+                },
+              },
+            },
+          ],
+        },
+        include: {
+          members: {
+            where: {
+              user_id: {
+                not: body.my_id,
+              },
+            },
+            include: {
+              user: true,
+            },
+          },
+        },
+      });
+      if (existedChat) {
+        return existedChat;
+      }
       const chat = await this.prismaService.chat.create({
         data: {
           name: body.name || 'New Chat',
@@ -21,6 +56,57 @@ export class ChatService {
       return chat;
     } catch (error) {
       throw new Error('Error in chat service');
+    }
+  }
+  async getChatOfUser(user_id: string) {
+    try {
+      const chats = await this.prismaService.chat.findMany({
+        where: {
+          members: {
+            some: {
+              user_id: user_id,
+            },
+          },
+        },
+        include: {
+          members: {
+            where: {
+              user_id: {
+                not: user_id,
+              },
+            },
+            include: {
+              user: true,
+            },
+          },
+        },
+      });
+
+      return chats;
+    } catch (error) {}
+  }
+  async getChatById(room_id: string, my_id: string) {
+    try {
+      const chat = await this.prismaService.chat.findFirst({
+        where: {
+          id: room_id,
+        },
+        include: {
+          members: {
+            where: {
+              user_id: {
+                not: my_id,
+              },
+            },
+            include: {
+              user: true,
+            },
+          },
+        },
+      });
+      return chat;
+    } catch (error) {
+      throw new Error("Can't get chat by id");
     }
   }
 }
