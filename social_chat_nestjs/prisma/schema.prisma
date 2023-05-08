@@ -1,0 +1,68 @@
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model User {
+  id            String           @id @default(uuid())
+  username      String        @unique
+  password      String
+  email         String        @unique
+  created_at    DateTime      @default(now())
+  chats         Chat[]        @relation("members")
+  sent_messages Message[]     @relation("sender")
+  received_friend_requests FriendRequest[] @relation("recipient")
+  sent_friend_requests     FriendRequest[] @relation("requester")
+  members       Member[]
+  @@map("users")
+}
+
+model Chat {
+  id         String      @id @default(uuid())
+  name       String
+  created_by_id String
+  created_by User     @relation("members" ,fields: [created_by_id], references: [id])
+  members    Member[]
+  messages   Message[]
+  @@map("chats")
+}
+
+model Member {
+  id      String    @id @default(uuid())
+  user_id String
+  chat_id String
+  user    User   @relation(fields: [user_id], references: [id])
+  chat    Chat   @relation(fields: [chat_id], references: [id])
+  @@map("members")
+}
+
+model Message {
+  id         String      @id @default(uuid())
+  content    String
+  chat_id    String
+  sender_id  String
+  chat       Chat     @relation(fields: [chat_id], references: [id])
+  sender     User     @relation("sender",fields: [sender_id], references: [id])
+  created_at DateTime @default(now())
+  @@map("messages")
+}
+
+model FriendRequest {
+  id          String   @id @default(uuid())
+  requester_id String
+  recipient_id String
+  status       String
+  created_at   DateTime @default(now())
+  requester   User   @relation("requester",fields: [requester_id], references: [id])
+  recipient   User   @relation("recipient",fields: [recipient_id], references: [id])
+  @@map("friend_requests")
+}
