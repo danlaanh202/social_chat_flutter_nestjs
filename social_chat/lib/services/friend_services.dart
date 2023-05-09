@@ -80,22 +80,76 @@ class FriendServices {
     }
   }
 
-  static Future<FriendRequest?> sendFriendRequest(
+  static Future<FriendRequest> sendFriendRequestByUserIds(
       {required String recipientId}) async {
     String apiUrl = "$_baseUrl/friend/send";
     String? accessToken =
         await SharedPreferencesServices.getData("accessToken");
     String? userId = await SharedPreferencesServices.getData("userId");
-    final response =
-        await http.post(Uri.parse(apiUrl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      "Authorization": "Bearer $accessToken",
-    }, body: {
-      "requester_id": userId,
-      "recipient_id": recipientId,
-    });
+    final response = await http.post(Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          "Authorization": "Bearer $accessToken",
+        },
+        body: jsonEncode(<String, String?>{
+          "requester_id": userId,
+          "recipient_id": recipientId,
+        }));
     if (response.statusCode == 201) {
       return FriendRequest.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 401) {
+      AuthServices.handle401Error();
+      throw Exception(
+          "Failed to load friends ${response.statusCode} $userId $accessToken");
+    } else {
+      throw Exception("Lỗi ở send friend request");
+    }
+  }
+
+  static Future<FriendRequest> acceptFriendRequestByUserIds(
+      {required String requesterId}) async {
+    String apiUrl = "$_baseUrl/friend/accept_by_user_ids";
+    String? accessToken =
+        await SharedPreferencesServices.getData("accessToken");
+    String? userId = await SharedPreferencesServices.getData("userId");
+    final response = await http.put(Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          "Authorization": "Bearer $accessToken",
+        },
+        body: jsonEncode(<String, String?>{
+          "requester_id": requesterId,
+          "recipient_id": userId,
+        }));
+    if (response.statusCode == 200) {
+      return FriendRequest();
+    } else if (response.statusCode == 401) {
+      AuthServices.handle401Error();
+      throw Exception(
+          "Failed to load friends ${response.statusCode} $userId $accessToken");
+    } else {
+      throw Exception("Lỗi ở send friend request");
+    }
+  }
+
+  static Future<FriendRequest> removeFriendRequestOrFriend({
+    required String friendId,
+  }) async {
+    String? accessToken =
+        await SharedPreferencesServices.getData("accessToken");
+    String? userId = await SharedPreferencesServices.getData("userId");
+    String apiUrl =
+        "$_baseUrl/friend/remove_by_user_ids?user_id_1=$userId&user_id_2=$friendId";
+    final response = await http.delete(
+      Uri.parse(apiUrl),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        "Authorization": "Bearer $accessToken",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return FriendRequest();
     } else if (response.statusCode == 401) {
       AuthServices.handle401Error();
       throw Exception(

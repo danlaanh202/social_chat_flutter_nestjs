@@ -14,6 +14,8 @@ import 'screens/HomeScreen.dart';
 import 'constants/social_colors.dart';
 import 'constants/theme_data.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -46,6 +48,7 @@ class MyApp extends StatelessWidget {
       ));
       return DismissKeyboard(
           child: MaterialApp(
+              navigatorKey: navigatorKey,
               debugShowCheckedModeBanner: false,
               themeMode:
                   darkModel.isDarkMode ? ThemeMode.dark : ThemeMode.light,

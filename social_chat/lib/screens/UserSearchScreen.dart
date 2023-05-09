@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:social_chat/constants/social_colors.dart';
 import 'package:social_chat/models/DarkModeModel.dart';
 import 'package:social_chat/models/friend.model.dart';
+import 'package:social_chat/models/friend_request.model.dart';
 import 'package:social_chat/services/debounce.dart';
 import 'package:social_chat/services/friend_services.dart';
 import 'package:social_chat/widget/MySquareButton.dart';
@@ -164,12 +165,51 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                 itemBuilder: (ctx, index) {
                   return SearchUserItem(
                     user: _users[index],
+                    handleButton: (String friendStatus_, String userId) {
+                      _handleButton(friendStatus_, userId, index);
+                    },
                   );
                 }),
           )
         ],
       ),
     );
+  }
+
+  Future<void> _handleButton(
+      String friendStatus, String friendId, int friendIndex) async {
+    if (friendStatus == "FRIEND") {
+      await FriendServices.removeFriendRequestOrFriend(friendId: friendId);
+
+      setState(() {
+        _users[friendIndex].friendStatus = "NO_STATUS";
+      });
+      // REMOVE
+    } else if (friendStatus == "SENT") {
+      await FriendServices.removeFriendRequestOrFriend(friendId: friendId);
+
+      setState(() {
+        _users[friendIndex].friendStatus = "NO_STATUS";
+      });
+      // REVOKE
+    } else if (friendStatus == "RECEIVED") {
+      await FriendServices.acceptFriendRequestByUserIds(requesterId: friendId);
+
+      setState(() {
+        _users[friendIndex].friendStatus = "FRIEND";
+      });
+
+      // REJECT
+      // ACCEPT
+    } else if (friendStatus == "NO_STATUS") {
+      await FriendServices.sendFriendRequestByUserIds(recipientId: friendId);
+
+      setState(() {
+        _users[friendIndex].friendStatus = "SENT";
+      });
+
+      // SEND
+    }
   }
 
   TextStyle _textStyle(int id) {
@@ -227,7 +267,10 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
 
 class SearchUserItem extends StatelessWidget {
   final Friend user;
-  const SearchUserItem({Key? key, required this.user}) : super(key: key);
+  final Function(String friendStatus, String userId) handleButton;
+  const SearchUserItem(
+      {Key? key, required this.user, required this.handleButton})
+      : super(key: key);
 
   String _friendStatusText(String friendStatus) {
     switch (friendStatus) {
@@ -236,9 +279,9 @@ class SearchUserItem extends StatelessWidget {
       case "NO_STATUS":
         return "Send request";
       case "RECEIVED":
-        return "Accept";
+        return "Accept Request";
       case "SENT":
-        return "Cancel";
+        return "Revoke Sent";
 
       default:
         return "";
@@ -270,7 +313,9 @@ class SearchUserItem extends StatelessWidget {
             ),
           ),
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              handleButton(user.friendStatus!, user.id!);
+            },
             style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.blue)),
             child: Text(
