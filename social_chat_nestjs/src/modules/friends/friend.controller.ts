@@ -6,6 +6,7 @@ import {
   Put,
   Delete,
   Query,
+  Get,
 } from '@nestjs/common';
 import { FriendService } from './friend.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -46,5 +47,11 @@ export class FriendController {
       params.user_id_1,
       params.user_id_2,
     );
+  }
+
+  @Get('/get_my_friends')
+  @JwtGuards()
+  getMyFriend(@Query() params: any) {
+    return this.friendService.getMyFiends(params.my_id, params.searchQuery);
   }
 }

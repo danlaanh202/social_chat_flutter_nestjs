@@ -6,13 +6,14 @@ class FriendRequest {
   String? createdAt;
   String? updatedAt;
 
-  FriendRequest(
-      {this.id,
-      this.requesterId,
-      this.recipientId,
-      this.status,
-      this.createdAt,
-      this.updatedAt});
+  FriendRequest({
+    this.id,
+    this.requesterId,
+    this.recipientId,
+    this.status,
+    this.createdAt,
+    this.updatedAt,
+  });
 
   FriendRequest.fromJson(Map<String, dynamic> json) {
     id = json['id'];

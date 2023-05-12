@@ -9,10 +9,7 @@ export class AuthController {
   constructor(
     private authService: AuthService, // private jwtService: JwtService,
   ) {}
-  @Get('/test1')
-  testApi() {
-    return 'cec';
-  }
+
   @Post('/sign-up')
   async signUp(@Body() myDto: SignUpDto) {
     return this.authService.register(myDto);

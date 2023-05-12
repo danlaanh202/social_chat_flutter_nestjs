@@ -32,7 +32,6 @@ export class AuthService {
     }
   }
   async login(dto: SignInDto) {
-    // console.log(dto);
     try {
       const user = await this.prismaService.user.findUnique({
         where: {

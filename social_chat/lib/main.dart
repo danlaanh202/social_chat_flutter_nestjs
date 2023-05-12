@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:social_chat/models/ActiveNavModel.dart';
 import 'package:social_chat/models/DarkModeModel.dart';
+import 'package:social_chat/providers/socket.provider.dart';
 import 'package:social_chat/screens/LoginScreen.dart';
 import 'package:social_chat/screens/RegisterScreen.dart';
 import 'package:social_chat/screens/SettingsScreen.dart';
@@ -13,11 +14,15 @@ import 'package:flutter/services.dart';
 import 'screens/HomeScreen.dart';
 import 'constants/social_colors.dart';
 import 'constants/theme_data.dart';
+import "package:socket_io_client/socket_io_client.dart" as IO;
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final socketProvider = SocketProvider();
+  socketProvider.connect();
 
   // Kiểm tra xem người dùng đã đăng nhập hay chưa
 
@@ -27,15 +32,29 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => DarkModeModel()),
         ChangeNotifierProvider(create: (_) => ActiveNavModel()),
+        ChangeNotifierProvider.value(value: socketProvider),
       ],
       child: MyApp(isLoggedIn: isLoggedIn),
     ),
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final bool? isLoggedIn;
   const MyApp({Key? key, this.isLoggedIn}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    AuthServices.getCurrentAccessToken().then((token) {
+      // print(token);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +73,9 @@ class MyApp extends StatelessWidget {
                   darkModel.isDarkMode ? ThemeMode.dark : ThemeMode.light,
               theme: lightTheme,
               darkTheme: darkTheme,
-              home: isLoggedIn! ? const HomeScreen() : const SplashScreen(),
+              home: widget.isLoggedIn!
+                  ? const HomeScreen()
+                  : const SplashScreen(),
               routes: <String, WidgetBuilder>{
             "/splash": (BuildContext context) => const SplashScreen(),
             "/home": (BuildContext context) => const HomeScreen(),

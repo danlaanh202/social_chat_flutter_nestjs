@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:social_chat/constants/social_strings.dart';
 import 'package:social_chat/models/auth.model.dart';
+import 'package:social_chat/providers/socket.provider.dart';
 import 'package:social_chat/screens/HomeScreen.dart';
 import 'package:social_chat/screens/RegisterScreen.dart';
 import 'package:social_chat/screens/SplashScreen.dart';
@@ -39,6 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
+    final socketProvider = Provider.of<SocketProvider>(context);
     return Scaffold(
         body: Stack(
       children: [
@@ -53,13 +56,6 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: const [
-                  // MySquareButton(
-                  //   width: 36,
-                  //   height: 36,
-                  //   onPressed: () {
-                  //     Navigator.pop(context);
-                  //   },
-                  // ),
                   SwitchDarkMode(),
                 ],
               ),
@@ -111,14 +107,22 @@ class _LoginScreenState extends State<LoginScreen> {
                     Container(
                       margin: const EdgeInsets.only(top: 28, bottom: 12),
                       child: MyNextButtonFullScreen(
-                          onPressed: () async {
-                            await AuthServices.login(_usernameController.text,
-                                    _passwordController.text)
-                                .then((res) {
-                              Navigator.pushNamed(context, "/home");
-                            });
-                          },
-                          buttonText: "Continue"),
+                        onPressed: () async {
+                          print("duma2");
+                          await AuthServices.login(
+                            _usernameController.text,
+                            _passwordController.text,
+                          ).then((res) {
+                            print("duma");
+                            socketProvider.connect();
+                            Navigator.pushNamed(
+                              context,
+                              "/home",
+                            );
+                          });
+                        },
+                        buttonText: "Continue",
+                      ),
                     ),
                     TextButton(
                         onPressed: () {

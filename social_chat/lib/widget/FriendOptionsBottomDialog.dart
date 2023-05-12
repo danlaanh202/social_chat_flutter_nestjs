@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:social_chat/screens/ChatRoomScreen.dart';
 import 'package:social_chat/services/chat_services.dart';
+import 'package:social_chat/services/friend_services.dart';
 
 class FriendOptionsBottomDialog extends StatelessWidget {
   final String? recipientId;
   final String? recipientUsername;
+  final Function? removeFriend;
   const FriendOptionsBottomDialog({
     Key? key,
     required this.recipientId,
     required this.recipientUsername,
+    required this.removeFriend,
   }) : super(key: key);
 
   @override
@@ -62,7 +65,14 @@ class FriendOptionsBottomDialog extends StatelessWidget {
               ),
             ),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                FriendServices.removeFriendRequestOrFriend(
+                  friendId: recipientId!,
+                ).then((val) {
+                  removeFriend!(recipientId);
+                  Navigator.pop(context);
+                });
+              },
               style: ButtonStyle(
                 padding: MaterialStateProperty.all(
                     const EdgeInsets.only(left: 4, right: 4, bottom: 4)),

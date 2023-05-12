@@ -74,4 +74,60 @@ export class FriendService {
       throw new Error("Can't remove");
     }
   }
+  async getMyFiends(userId: any, _searchQuery = '') {
+    try {
+      const friends = await this.prismaService.friendRequest.findMany({
+        where: {
+          AND: [
+            {
+              OR: [
+                {
+                  recipient_id: userId,
+                },
+                {
+                  requester_id: userId,
+                },
+              ],
+            },
+            {
+              OR: [
+                {
+                  recipient: {
+                    username: {
+                      contains: _searchQuery,
+                    },
+                  },
+                },
+                {
+                  requester: {
+                    username: {
+                      contains: _searchQuery,
+                    },
+                  },
+                },
+              ],
+            },
+            {
+              status: 'ACCEPTED',
+            },
+          ],
+        },
+        include: {
+          recipient: true,
+          requester: true,
+        },
+      });
+      return friends.map((_user) => {
+        if (_user.recipient_id == userId) {
+          delete _user.requester.password;
+          return _user.requester;
+        } else if (_user.requester_id == userId) {
+          delete _user.recipient.password;
+          return _user.recipient;
+        }
+      });
+    } catch (error) {
+      throw new Error('');
+    }
+  } //wrong
 }

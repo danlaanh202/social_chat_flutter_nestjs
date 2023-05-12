@@ -36,4 +36,9 @@ export class UserController {
   searchSentUsers(@Query() params: any) {
     return this.userService.searchSentUsers(params.search_query, params.my_id);
   }
+  // @Get("/my_user")
+  // @JwtGuards()
+  // getMyUser(@Query() params: any) {
+  //   return this.userService.search
+  // }
 }

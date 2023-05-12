@@ -7,6 +7,11 @@ import 'package:social_chat/services/shared_pref_service.dart';
 
 class AuthServices {
   static const String _baseUrl = "http://192.168.0.105:4000";
+  static Future<dynamic> getCurrentAccessToken() async {
+    String? accessToken =
+        await SharedPreferencesServices.getData("accessToken");
+    return accessToken;
+  }
 
   static Future<String?> login(username, password) async {
     final response = await http.post(
@@ -34,6 +39,7 @@ class AuthServices {
       throw Exception(
           'Failed to login. Status code: ${response.statusCode}. Error: ${response.reasonPhrase}.');
     }
+    return null;
   }
 
   static Future<void> logout() async {

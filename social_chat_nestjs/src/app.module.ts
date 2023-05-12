@@ -5,6 +5,8 @@ import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './modules/users/user.module';
 import { ChatModule } from './modules/chats/chat.module';
 import { FriendModule } from './modules/friends/friend.module';
+import { MessageModule } from './modules/messages/message.module';
+import { WebSocketModule } from './websocket/websocket.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { FriendModule } from './modules/friends/friend.module';
     UserModule,
     ChatModule,
     FriendModule,
+    MessageModule,
+    WebSocketModule,
   ],
 })
 export class AppModule {}

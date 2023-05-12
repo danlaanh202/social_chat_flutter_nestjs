@@ -9,9 +9,9 @@ class ChatServices {
   static const String _baseUrl = "http://192.168.0.105:4000";
   static List<ChatRoom> parseChatRoom(String responseBody) {
     var list = json.decode(responseBody) as List<dynamic>;
-    List<ChatRoom> friends =
+    List<ChatRoom> chatRooms =
         list.map((model) => ChatRoom.fromJson(model)).toList();
-    return friends;
+    return chatRooms;
   }
 
   static Future<String?> createChat(String recipientId, String? name) async {
@@ -54,6 +54,7 @@ class ChatServices {
       },
     );
     if (response.statusCode == 200) {
+      // print(response.body);
       return parseChatRoom(response.body);
     } else if (response.statusCode == 401) {
       AuthServices.handle401Error();

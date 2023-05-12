@@ -226,4 +226,16 @@ export class UserService {
       throw new Error(error);
     }
   }
+  async getUser(userId: string) {
+    try {
+      const user = await this.prismaService.user.findUnique({
+        where: {
+          id: userId,
+        },
+      });
+      return user;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }

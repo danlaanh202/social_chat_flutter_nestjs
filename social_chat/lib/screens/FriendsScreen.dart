@@ -42,8 +42,10 @@ void onTapToShowDialog(ctx, {darkModeModel}) {
 
 class FriendsScreen extends StatefulWidget {
   final DarkModeModel darkModeModel;
-  const FriendsScreen({Key? key, required this.darkModeModel})
-      : super(key: key);
+  const FriendsScreen({
+    Key? key,
+    required this.darkModeModel,
+  }) : super(key: key);
 
   @override
   _FriendsScreenState createState() => _FriendsScreenState();
@@ -51,6 +53,7 @@ class FriendsScreen extends StatefulWidget {
 
 class _FriendsScreenState extends State<FriendsScreen> {
   List<Friend> _friends = [];
+  int _count = 0;
   final _searchController = TextEditingController();
   static final Debouncer debouncer = Debouncer(milliseconds: 500);
 
@@ -131,9 +134,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
             child: TextField(
               controller: _searchController,
-              // onChanged: (value) {
-              //   _callApiFriend(value);
-              // },
               decoration: InputDecoration(
                   hintText: "Search friends",
                   hintStyle: const TextStyle(fontSize: 14),
@@ -148,12 +148,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
-                    "186 friends",
+                    "$_count friends",
                     textAlign: TextAlign.start,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -166,6 +166,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                       return FriendItem(
                         username: _friends[index].username,
                         friendId: _friends[index].id,
+                        removeFriend: _removeFriend,
                       );
                     })
               ],
@@ -182,11 +183,17 @@ class _FriendsScreenState extends State<FriendsScreen> {
     });
   }
 
-  _callApiFriend(String searchQuery) {
-    FriendServices.searchFriends(searchQuery: searchQuery).then((data) {
+  _callApiFriend(String searchQuery) async {
+    await FriendServices.searchFriends(searchQuery: searchQuery).then((data) {
       setState(() {
-        _friends = data;
+        _friends = data!;
       });
+    });
+  }
+
+  _removeFriend(String friendId) {
+    setState(() {
+      _friends.removeWhere((element) => element.id == friendId);
     });
   }
 }
@@ -194,9 +201,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
 class FriendItem extends StatelessWidget {
   final String? username;
   final String? friendId;
-
-  const FriendItem({Key? key, required this.username, required this.friendId})
-      : super(key: key);
+  final dynamic removeFriend;
+  const FriendItem({
+    Key? key,
+    required this.username,
+    required this.friendId,
+    required this.removeFriend,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -226,7 +237,10 @@ class FriendItem extends StatelessWidget {
               showModalBottomSheet<void>(
                 context: context,
                 builder: (BuildContext context) => FriendOptionsBottomDialog(
-                    recipientId: friendId, recipientUsername: username),
+                  recipientId: friendId,
+                  recipientUsername: username,
+                  removeFriend: removeFriend,
+                ),
               );
             },
             splashRadius: 20,

@@ -14,13 +14,14 @@ class FriendServices {
     return friends;
   }
 
-  static Future<List<Friend>> searchFriends({String searchQuery = ""}) async {
+  static Future<List<Friend>?> searchFriends({String searchQuery = ""}) async {
     String? accessToken =
         await SharedPreferencesServices.getData("accessToken");
     String? userId = await SharedPreferencesServices.getData("userId");
     final response = await http.get(
       Uri.parse(
-          '$_baseUrl/user/get_all_friends?my_id=$userId&search_query=$searchQuery'),
+        '$_baseUrl/user/get_all_friends?my_id=$userId&search_query=$searchQuery',
+      ),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         "Authorization": "Bearer $accessToken",
