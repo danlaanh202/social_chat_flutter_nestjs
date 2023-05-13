@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:social_chat/constants/social_colors.dart';
 import 'package:social_chat/constants/social_strings.dart';
+import 'package:social_chat/providers/socket.provider.dart';
 import 'package:social_chat/screens/FriendsScreen.dart';
 import 'package:social_chat/screens/HomeCallScreen.dart';
 import 'package:social_chat/screens/HomeChatScreen.dart';
@@ -71,6 +72,8 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
+    final socketProvider = Provider.of<SocketProvider>(context);
+    // socketProvider.connect();
 
     return Consumer2<DarkModeModel, ActiveNavModel>(
         builder: (context, darkModeModel, activeNavModel, child) {

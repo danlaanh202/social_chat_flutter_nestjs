@@ -113,7 +113,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             _usernameController.text,
                             _passwordController.text,
                           ).then((res) {
-                            print("duma");
                             socketProvider.connect();
                             Navigator.pushNamed(
                               context,

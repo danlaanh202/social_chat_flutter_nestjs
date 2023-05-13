@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:social_chat/models/ActiveNavModel.dart';
@@ -20,13 +22,12 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  // HttpOverrides.global = MyHttpOverrides();
+  bool isLoggedIn = await AuthServices.isLoggedIn();
   final socketProvider = SocketProvider();
   socketProvider.connect();
 
   // Kiểm tra xem người dùng đã đăng nhập hay chưa
-
-  bool isLoggedIn = await AuthServices.isLoggedIn();
   runApp(
     MultiProvider(
       providers: [

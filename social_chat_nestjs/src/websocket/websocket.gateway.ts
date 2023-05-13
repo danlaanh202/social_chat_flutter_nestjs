@@ -16,13 +16,15 @@ export class WebsocketGateway implements OnGatewayInit {
   constructor(
     private readonly messageService: MessageService,
     @Inject('USER_SOCKETS')
-    private readonly userSockets: { [userId: string]: Socket[] }, // private readonly socketService: WebSocketService,
+    private readonly userSockets: { [userId: string]: Socket[] },
+    private readonly socketService: WebSocketService,
   ) {}
   @WebSocketServer()
   server: Server;
 
   handleConnection(client: Socket) {
     console.log(`Người dùng đã kết nối ${client.id}`);
+    console.log(this.userSockets);
     const userId = client.handshake.query.user_id as string;
     if (!this.userSockets[userId]) {
       this.userSockets[userId] = [];
@@ -47,6 +49,8 @@ export class WebsocketGateway implements OnGatewayInit {
   }
   @SubscribeMessage('message')
   async handleMessage(client: any, payload: any) {
+    console.log(client);
+
     try {
       const message = await this.messageService.createMessage({
         content: payload.content,
@@ -54,8 +58,13 @@ export class WebsocketGateway implements OnGatewayInit {
         my_id: payload.my_id,
       });
 
-      this.server.emit('receive_message', message);
-      // this.server.emit('message_error', 'Something wrong with this');
+      this.socketService.sendToUser(
+        this.server,
+        message.chat.members[0].id,
+        'message_receive',
+        message.content,
+      );
+      this.server.to(client.id).emit('message_receive', message);
     } catch (error) {
       this.server.emit('message_error', 'Something wrong with this');
     }

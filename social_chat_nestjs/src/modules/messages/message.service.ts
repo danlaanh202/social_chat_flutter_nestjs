@@ -23,6 +23,22 @@ export class MessageService {
             },
           },
         },
+        include: {
+          chat: {
+            include: {
+              members: {
+                // do something here
+                where: {
+                  user: {
+                    id: {
+                      not: body.my_id,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       });
       return message;
     } catch (error) {

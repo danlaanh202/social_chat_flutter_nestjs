@@ -38,7 +38,7 @@ class _ChatScreenState extends State<ChatScreen> {
         itemCount: widget.messages.length,
         itemBuilder: (ctx, index) => ChatItem(
           darkModeModel: widget.darkModeModel,
-          isRecipient: _myUserId != widget.messages[index]!.senderId,
+          isRecipient: _myUserId != widget.messages[index]?.senderId,
           message: widget.messages[index]!,
         ),
       ),

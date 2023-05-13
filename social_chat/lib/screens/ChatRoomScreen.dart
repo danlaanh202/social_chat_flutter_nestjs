@@ -8,6 +8,7 @@ import 'package:social_chat/models/message.model.dart';
 import 'package:social_chat/providers/socket.provider.dart';
 import 'package:social_chat/services/chat_services.dart';
 import 'package:social_chat/services/message_services.dart';
+import 'package:social_chat/services/shared_pref_service.dart';
 
 // import 'package:social_chat/widget/MySquareButton.dart';
 import 'package:social_chat/widget/chat_list/ChatScreen.dart';
@@ -49,11 +50,13 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     var width = MediaQuery.of(context).size.width;
 
     return Consumer2<DarkModeModel, SocketProvider>(
-        builder: (context, model, socketProvider, child) {
-      socketProvider.socket?.on("receive_message", (data) {
+        builder: (ctx, model, socketProvider, child) {
+      socketProvider.socket?.on("message_receive", (data) {
+        print(data);
         if (!mounted) {
           return;
         }
+
         setState(() {
           _messages.add(Message.fromJson(data));
         });
@@ -200,21 +203,13 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                 IconButton(
                   onPressed: () {
                     String messageText = _messageController.text;
-                    _messageController.text = "";
                     if (messageText != "") {
-                      socketProvider.sendMessage({
+                      socketProvider.sendMessage(<String, String>{
                         "chatId": widget.roomId,
                         "content": messageText,
                       });
-                      // MessageServices.createMessage(
-                      //   widget.roomId,
-                      //   messageText,
-                      // ).then((val) {
-                      //   setState(() {
-                      //     _messages.add(val);
-                      //   });
-                      // });
                     }
+                    _messageController.text = "";
                   },
                   icon: Icon(
                     Icons.send,

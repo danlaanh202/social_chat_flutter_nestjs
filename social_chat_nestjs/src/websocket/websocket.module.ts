@@ -9,10 +9,7 @@ import { WebSocketService } from './websocket.service';
     WebsocketGateway,
     MessageService,
     WebSocketService,
-    // {
-    //   provide: 'SERVER',
-    //   useExisting: WebsocketGateway,
-    // },
+
     {
       provide: 'USER_SOCKETS',
       useValue: {},
