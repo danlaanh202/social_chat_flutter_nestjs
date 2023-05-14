@@ -1,30 +1,56 @@
+import 'package:social_chat/models/auth.model.dart';
+import 'package:social_chat/models/message.model.dart';
+
 class ChatRoom {
   String? id;
   String? name;
   String? createdById;
   List<Members>? members;
-
-  ChatRoom({this.id, this.name, this.createdById, this.members});
+  List<Message>? messages;
+  String? createdAt;
+  bool? isLastMessageViewed;
+  ChatRoom({
+    this.id,
+    this.name,
+    this.createdById,
+    this.members,
+    this.messages,
+    this.isLastMessageViewed,
+    this.createdAt,
+  });
 
   ChatRoom.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
     createdById = json['created_by_id'];
+    createdAt = json["created_at"];
+    isLastMessageViewed = json['is_last_message_viewed'];
     if (json['members'] != null) {
       members = <Members>[];
       json['members'].forEach((v) {
-        members!.add(new Members.fromJson(v));
+        members!.add(Members.fromJson(v));
+      });
+    }
+    if (json['messages'] != null) {
+      messages = <Message>[];
+      json['messages'].forEach((v) {
+        messages!.add(Message.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['created_by_id'] = this.createdById;
-    if (this.members != null) {
-      data['members'] = this.members!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['created_by_id'] = createdById;
+    data['created_at'] = createdAt;
+    data['is_last_message_viewed'] = isLastMessageViewed;
+    if (members != null) {
+      data['members'] = members!.map((v) => v.toJson()).toList();
+    }
+    if (messages != null) {
+      data['messages'] = messages!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -34,7 +60,7 @@ class Members {
   String? id;
   String? userId;
   String? chatId;
-  User? user;
+  Auth? user;
 
   Members({this.id, this.userId, this.chatId, this.user});
 
@@ -42,45 +68,17 @@ class Members {
     id = json['id'];
     userId = json['user_id'];
     chatId = json['chat_id'];
-    user = json['user'] != null ? new User.fromJson(json['user']) : null;
+    user = json['user'] != null ? Auth.fromJson(json['user']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['user_id'] = this.userId;
-    data['chat_id'] = this.chatId;
-    if (this.user != null) {
-      data['user'] = this.user!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['user_id'] = userId;
+    data['chat_id'] = chatId;
+    if (user != null) {
+      data['user'] = user!.toJson();
     }
-    return data;
-  }
-}
-
-class User {
-  String? id;
-  String? username;
-  String? password;
-  String? email;
-  String? createdAt;
-
-  User({this.id, this.username, this.password, this.email, this.createdAt});
-
-  User.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    username = json['username'];
-    password = json['password'];
-    email = json['email'];
-    createdAt = json['created_at'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['username'] = this.username;
-    data['password'] = this.password;
-    data['email'] = this.email;
-    data['created_at'] = this.createdAt;
     return data;
   }
 }

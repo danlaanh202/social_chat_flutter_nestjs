@@ -7,6 +7,8 @@ import { ChatModule } from './modules/chats/chat.module';
 import { FriendModule } from './modules/friends/friend.module';
 import { MessageModule } from './modules/messages/message.module';
 import { WebSocketModule } from './websocket/websocket.module';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import { PostModule } from './modules/posts/post.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { WebSocketModule } from './websocket/websocket.module';
     FriendModule,
     MessageModule,
     WebSocketModule,
+    CloudinaryModule,
+    PostModule,
   ],
 })
 export class AppModule {}

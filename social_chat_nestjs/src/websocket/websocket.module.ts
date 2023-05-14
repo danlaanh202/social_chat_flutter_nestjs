@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { WebsocketGateway } from './websocket.gateway';
 import { MessageService } from 'src/modules/messages/message.service';
 import { WebSocketService } from './websocket.service';
+import { ChatService } from 'src/modules/chats/chat.service';
 
 @Module({
   controllers: [],
@@ -9,7 +10,7 @@ import { WebSocketService } from './websocket.service';
     WebsocketGateway,
     MessageService,
     WebSocketService,
-
+    ChatService,
     {
       provide: 'USER_SOCKETS',
       useValue: {},

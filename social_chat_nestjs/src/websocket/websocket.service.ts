@@ -16,4 +16,7 @@ export class WebSocketService {
       });
     }
   }
+  sendToRoom(server: Server, roomId: string, event: string, data: any) {
+    server.to(roomId).emit(event, data);
+  }
 }

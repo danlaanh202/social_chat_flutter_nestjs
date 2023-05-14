@@ -36,6 +36,12 @@ export class ChatService {
               user: true,
             },
           },
+          messages: {
+            orderBy: {
+              created_at: 'desc',
+            },
+            take: 1,
+          },
         },
       });
       if (existedChat) {
@@ -79,9 +85,15 @@ export class ChatService {
               user: true,
             },
           },
+          messages: {
+            orderBy: {
+              created_at: 'desc',
+            },
+            take: 1,
+          },
         },
       });
-
+      console.log(chats);
       return chats;
     } catch (error) {}
   }
@@ -102,11 +114,32 @@ export class ChatService {
               user: true,
             },
           },
+          messages: {
+            orderBy: {
+              created_at: 'desc',
+            },
+            take: 1,
+          },
         },
       });
       return chat;
     } catch (error) {
       throw new Error("Can't get chat by id");
+    }
+  }
+  async updateIsViewed(room_id: string, is_viewed: boolean) {
+    try {
+      const chat = await this.prismaService.chat.update({
+        where: {
+          id: room_id,
+        },
+        data: {
+          is_last_message_viewed: is_viewed,
+        },
+      });
+      return chat;
+    } catch (error) {
+      throw new Error('can not update is_viewed status');
     }
   }
 }

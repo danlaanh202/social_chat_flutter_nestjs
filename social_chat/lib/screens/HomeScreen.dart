@@ -65,14 +65,18 @@ class _HomeScreenState extends State<HomeScreen>
     final curvedAnimation =
         CurvedAnimation(curve: Curves.easeInOut, parent: _animationController!);
     _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
-
+    _handleConnectSocket();
     super.initState();
+  }
+
+  _handleConnectSocket() {
+    Provider.of<SocketProvider>(context, listen: false).connect();
   }
 
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
-    final socketProvider = Provider.of<SocketProvider>(context);
+    // final socketProvider = Provider.of<SocketProvider>(context);
     // socketProvider.connect();
 
     return Consumer2<DarkModeModel, ActiveNavModel>(

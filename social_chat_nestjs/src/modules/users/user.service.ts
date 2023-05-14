@@ -18,6 +18,7 @@ export class UserService {
     }
   }
   async getMyFriends(userId: string, _searchQuery = '') {
+    console.log(userId);
     try {
       const friends = await this.prismaService.user.findUnique({
         where: {
@@ -67,11 +68,11 @@ export class UserService {
       const receivedFriendRequests = friends.received_friend_requests.map(
         (fr) => {
           delete fr.requester.password;
-          fr.requester;
+          return fr.requester;
         },
       );
-      const myFriends = [...sentFriendRequests, ...receivedFriendRequests];
-      return myFriends;
+
+      return [...sentFriendRequests, ...receivedFriendRequests];
     } catch (error) {
       throw new Error('Error when get friends');
     }

@@ -5,11 +5,15 @@ import 'package:social_chat/services/shared_pref_service.dart';
 
 class ChatScreen extends StatefulWidget {
   final DarkModeModel darkModeModel;
+  final ScrollController scrollController;
   final List<Message?> messages;
 
-  const ChatScreen(
-      {Key? key, required this.darkModeModel, required this.messages})
-      : super(key: key);
+  const ChatScreen({
+    Key? key,
+    required this.darkModeModel,
+    required this.messages,
+    required this.scrollController,
+  }) : super(key: key);
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -24,6 +28,22 @@ class _ChatScreenState extends State<ChatScreen> {
     _getMyId().then((val) {
       _myUserId = val;
     });
+    // if (mounted) {
+    //   _scrollToBottom();
+    // }
+    Future.delayed(Duration(milliseconds: 300), () {
+      _scrollToBottom();
+    });
+  }
+
+  void _scrollToBottom() async {
+    if (widget.scrollController.hasClients) {
+      widget.scrollController.animateTo(
+        widget.scrollController.position.maxScrollExtent + 150,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   Future<String?> _getMyId() async {
@@ -35,6 +55,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Expanded(
       child: ListView.builder(
+        controller: widget.scrollController,
         itemCount: widget.messages.length,
         itemBuilder: (ctx, index) => ChatItem(
           darkModeModel: widget.darkModeModel,

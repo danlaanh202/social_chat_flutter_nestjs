@@ -5,6 +5,7 @@ import { JwtStrategy } from '../auth/strategy/jwt.strategy';
 
 @Module({
   imports: [],
+  exports: [ChatService],
   providers: [ChatService, JwtStrategy],
   controllers: [ChatController],
 })

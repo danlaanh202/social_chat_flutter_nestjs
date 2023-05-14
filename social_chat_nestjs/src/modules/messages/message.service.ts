@@ -1,9 +1,14 @@
+import { ChatService } from './../chats/chat.service';
+
 import { PrismaService } from './../prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 
 @Injectable({})
 export class MessageService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private chatService: ChatService,
+  ) {}
   async createMessage(body: any) {
     try {
       if (!body.content || !body.chat_id || !body.my_id) {
@@ -40,6 +45,7 @@ export class MessageService {
           },
         },
       });
+      await this.chatService.updateIsViewed(body.chat_id, false);
       return message;
     } catch (error) {
       throw new Error(error);

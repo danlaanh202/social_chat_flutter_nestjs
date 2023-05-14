@@ -13,16 +13,18 @@ datasource db {
 
 
 model User {
-  id            String           @id @default(uuid())
-  username      String        @unique
+  id            String                      @id @default(uuid())
+  username      String                      @unique
   password      String
-  email         String        @unique
-  created_at    DateTime      @default(now())
-  updated_at    DateTime?      @updatedAt
-  chats         Chat[]        @relation("members")
-  sent_messages Message[]     @relation("sender")
-  received_friend_requests FriendRequest[] @relation("recipient")
-  sent_friend_requests     FriendRequest[] @relation("requester")
+  email         String                      @unique
+  created_at    DateTime                    @default(now())
+  updated_at    DateTime?                   @updatedAt
+  avatar_url    String?       
+  chats         Chat[]                      @relation("members")
+  sent_messages Message[]                   @relation("sender")
+  received_friend_requests FriendRequest[]  @relation("recipient")
+  sent_friend_requests     FriendRequest[]  @relation("requester")
+  author_of     Post[] @relation("author")
   members       Member[]
   @@map("users")
 }
@@ -33,9 +35,11 @@ model Chat {
   created_at    DateTime      @default(now())
   updated_at    DateTime?      @updatedAt
   created_by_id String
+  image_url   String?
   created_by User     @relation("members" ,fields: [created_by_id], references: [id])
   members    Member[]
-  messages   Message[]
+  messages   Message[] 
+  is_last_message_viewed Boolean?
   @@map("chats")
 }
 
@@ -47,6 +51,7 @@ model Member {
   updated_at    DateTime?      @updatedAt
   user    User   @relation(fields: [user_id], references: [id])
   chat    Chat   @relation(fields: [chat_id], references: [id])
+
   @@map("members")
 }
 
@@ -60,6 +65,7 @@ model Message {
   chat       Chat     @relation(fields: [chat_id], references: [id])
   sender     User     @relation("sender",fields: [sender_id], references: [id])
   @@map("messages")
+  @@index([chat_id, created_at])
 }
 
 model FriendRequest {
@@ -72,4 +78,13 @@ model FriendRequest {
   requester   User   @relation("requester",fields: [requester_id], references: [id])
   recipient   User   @relation("recipient",fields: [recipient_id], references: [id])
   @@map("friend_requests")
+}
+
+model Post {
+  id          String    @id @default(uuid())
+  description String? 
+  imagePath   String?
+  author      User      @relation("author" ,fields: [authorId], references: [id])
+  authorId    String
+  @@map("posts")
 }

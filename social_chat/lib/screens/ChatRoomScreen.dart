@@ -15,6 +15,7 @@ import 'package:social_chat/widget/chat_list/ChatScreen.dart';
 
 class ChatRoomScreen extends StatefulWidget {
   final String roomId;
+
   const ChatRoomScreen({Key? key, required this.roomId}) : super(key: key);
   @override
   _ChatRoomScreenState createState() => _ChatRoomScreenState();
@@ -23,7 +24,11 @@ class ChatRoomScreen extends StatefulWidget {
 class _ChatRoomScreenState extends State<ChatRoomScreen> {
   ChatRoom? _chatRoom;
   List<Message?> _messages = [];
+  bool _isListening = false;
+  bool _isJoin = false;
+  final ScrollController _listViewController = ScrollController();
   final _messageController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -37,6 +42,11 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         _messages = val;
       });
     });
+    _joinRoom();
+    _registerMessageListener();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollDown();
+    });
   }
 
   @override
@@ -45,22 +55,48 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     _messageController.dispose();
   }
 
+  void _scrollDown() {
+    _listViewController.animateTo(
+      _listViewController.position.maxScrollExtent + 50,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+
+  void _joinRoom() {
+    if (!_isJoin) {
+      Provider.of<SocketProvider>(context, listen: false).socket?.emit("room", {
+        "chat_id": widget.roomId,
+      });
+      _isJoin = true;
+    }
+  }
+
+  void _registerMessageListener() {
+    if (!_isListening) {
+      // Chỉ đăng ký lắng nghe nếu chưa đăng ký trước đó
+      Provider.of<SocketProvider>(context, listen: false)
+          .socket
+          ?.on("message_receive_room", (data) {
+        print(data);
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _messages.add(Message.fromJson(data));
+        });
+        _scrollDown();
+      });
+      _isListening = true; // Đánh dấu là đã đăng ký lắng nghe
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
 
     return Consumer2<DarkModeModel, SocketProvider>(
         builder: (ctx, model, socketProvider, child) {
-      socketProvider.socket?.on("message_receive", (data) {
-        print(data);
-        if (!mounted) {
-          return;
-        }
-
-        setState(() {
-          _messages.add(Message.fromJson(data));
-        });
-      });
       return Scaffold(
         appBar: AppBar(
           titleSpacing: 8,
@@ -71,7 +107,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
               IconButton(
                 onPressed: () {
                   Navigator.pushNamedAndRemoveUntil(
-                      context, "/home", (route) => false);
+                      ctx, "/home", (route) => false);
                 },
                 icon: Icon(
                   Icons.arrow_back,
@@ -172,6 +208,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             ChatScreen(
               darkModeModel: model,
               messages: _messages,
+              scrollController: _listViewController,
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,

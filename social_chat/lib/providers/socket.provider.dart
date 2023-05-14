@@ -5,6 +5,7 @@ import 'package:social_chat/services/shared_pref_service.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketProvider extends ChangeNotifier {
+  List<IO.Socket> _previousConnections = [];
   IO.Socket? _socket;
 
   IO.Socket? get socket {
@@ -13,20 +14,25 @@ class SocketProvider extends ChangeNotifier {
 
   void connect() async {
     print("connect");
+    if (_socket != null && _socket!.connected) {
+      // Socket is already connected
+      return;
+    } // Ngắt kết nối các kết nối khác trước khi kết nối mới
 
     final userId = await SharedPreferencesServices.getData("userId");
     _socket = IO.io(
-        "http://192.168.0.105:4000",
-        IO.OptionBuilder()
-            .setTransports(["websocket"])
-            // .setExtraHeaders({"foo": "bar"})
-            .setQuery({"user_id": userId})
-            .disableReconnection()
-            .enableForceNew()
-            .disableAutoConnect()
-            .build());
+      "http://192.168.0.105:4000/",
+      IO.OptionBuilder()
+          .setTransports(["websocket"])
+          .setQuery({"user_id": userId})
+          .disableReconnection()
+          .enableForceNew()
+          .disableAutoConnect()
+          .build(),
+    );
 
     print("...");
+    _socket?.connect();
     _socket?.onConnect((_) {
       // print(_socket?.id);
       notifyListeners();
@@ -37,7 +43,10 @@ class SocketProvider extends ChangeNotifier {
     });
     _socket?.onDisconnect((data) => print("dis"));
 
-    // socket = skt;
+    // Lưu trữ kết nối hiện tại vào danh sách
+    if (_socket != null) {
+      _previousConnections.add(_socket!);
+    }
   }
 
   void sendMessage(Map<String, String> payload) async {
@@ -54,11 +63,17 @@ class SocketProvider extends ChangeNotifier {
   Future<Message?> receiveMessage() async {
     Message? _msg = Message();
 
-    _socket?.on("message_receive", (msg) => _msg = Message.fromJson(msg));
+    _socket?.on("message_receive_room", (msg) => _msg = Message.fromJson(msg));
     return _msg;
   }
 
   void disconnect() {
+    for (var connection in _previousConnections) {
+      connection.disconnect();
+      connection.dispose();
+    }
+    _previousConnections.clear();
+
     _socket?.disconnect();
     _socket?.dispose();
 
