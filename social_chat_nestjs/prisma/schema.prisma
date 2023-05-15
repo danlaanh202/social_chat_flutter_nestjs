@@ -24,7 +24,7 @@ model User {
   sent_messages Message[]                   @relation("sender")
   received_friend_requests FriendRequest[]  @relation("recipient")
   sent_friend_requests     FriendRequest[]  @relation("requester")
-  author_of     Post[] @relation("author")
+  author_of     Post[]                      @relation("author")
   members       Member[]
   @@map("users")
 }
@@ -83,8 +83,8 @@ model FriendRequest {
 model Post {
   id          String    @id @default(uuid())
   description String? 
-  imagePath   String?
-  author      User      @relation("author" ,fields: [authorId], references: [id])
-  authorId    String
+  image_path   String?
+  author      User      @relation("author" ,fields: [author_id], references: [id])
+  author_id    String
   @@map("posts")
 }

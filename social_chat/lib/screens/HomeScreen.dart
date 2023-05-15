@@ -14,9 +14,11 @@ import 'package:social_chat/screens/SettingsScreen.dart';
 import 'package:social_chat/widget/ChoosenBar.dart';
 
 import 'package:social_chat/widget/MySquareButton.dart';
+import 'package:social_chat/widget/settings_dialog/SettingDetailDialog.dart';
 
 import '../models/DarkModeModel.dart';
 import '../models/ActiveNavModel.dart';
+import '../widget/status/CreateStatusDialog.dart';
 
 Widget _getCurrentScreen(int activeNavIndex, darkModeModel, activeNavModel) {
   switch (activeNavIndex) {
@@ -73,6 +75,32 @@ class _HomeScreenState extends State<HomeScreen>
     Provider.of<SocketProvider>(context, listen: false).connect();
   }
 
+  void onTapToShowDialog(ctx, {darkModeModel, typeIndex}) {
+    showGeneralDialog(
+      context: ctx,
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(0.0, 1.0);
+        const end = Offset.zero;
+        const curve = Curves.ease;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+      pageBuilder: (BuildContext buildContext, Animation<double> animation,
+          Animation<double> secondaryAnimation) {
+        return SettingDetailDialog(
+          darkModeModel: darkModeModel,
+          type: typeIndex,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
@@ -98,9 +126,20 @@ class _HomeScreenState extends State<HomeScreen>
                 children: [
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 8),
-                    child: const SizedBox(
+                    child: MySquareButton(
                       width: 36,
                       height: 36,
+                      iconSize: 24,
+                      buttonIcon: Icons.info,
+                      buttonColor: socialPrimaryColor,
+                      iconColor: Colors.white,
+                      onPressed: () {
+                        onTapToShowDialog(
+                          context,
+                          darkModeModel: darkModeModel,
+                          typeIndex: 0,
+                        );
+                      },
                     ),
                   ),
                   Text(
@@ -142,7 +181,10 @@ class _HomeScreenState extends State<HomeScreen>
                 darkModeModel: darkModeModel,
               ),
               _getCurrentScreen(
-                  activeNavModel.activeNav, darkModeModel, activeNavModel),
+                activeNavModel.activeNav,
+                darkModeModel,
+                activeNavModel,
+              ),
             ],
           ),
           floatingActionButton: FloatingActionBubble(
@@ -155,6 +197,28 @@ class _HomeScreenState extends State<HomeScreen>
                 titleStyle: const TextStyle(fontSize: 16, color: Colors.white),
                 onPress: () {
                   _animationController!.reverse();
+                  showGeneralDialog(
+                    context: context,
+                    transitionBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      const begin = Offset(0.0, 1.0);
+                      const end = Offset.zero;
+                      const curve = Curves.ease;
+
+                      var tween = Tween(begin: begin, end: end)
+                          .chain(CurveTween(curve: curve));
+
+                      return SlideTransition(
+                        position: animation.drive(tween),
+                        child: child,
+                      );
+                    },
+                    pageBuilder: (BuildContext buildContext,
+                        Animation<double> animation,
+                        Animation<double> secondaryAnimation) {
+                      return CreateStatusDialog();
+                    },
+                  );
                 },
               ),
               Bubble(

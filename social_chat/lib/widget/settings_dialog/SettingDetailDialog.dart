@@ -20,31 +20,31 @@ class SettingDetailDialog extends StatelessWidget {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: SizedBox(
-            width: width,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                MySquareButton(
-                  width: 36,
-                  height: 36,
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
+          width: width,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              MySquareButton(
+                width: 36,
+                height: 36,
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              Text(
+                dialogList[type].title,
+                style: TextStyle(
+                  fontSize: textSizeMedium,
+                  color: darkModeModel.isDarkMode ? Colors.white : Colors.black,
                 ),
-                Text(
-                  dialogList[type].title,
-                  style: TextStyle(
-                    fontSize: textSizeMedium,
-                    color:
-                        darkModeModel.isDarkMode ? Colors.white : Colors.black,
-                  ),
-                ),
-                const SizedBox(
-                  width: 36,
-                  height: 36,
-                ),
-              ],
-            )),
+              ),
+              const SizedBox(
+                width: 36,
+                height: 36,
+              ),
+            ],
+          ),
+        ),
       ),
       body: Column(
         children: [

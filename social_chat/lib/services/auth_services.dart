@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:social_chat/main.dart';
+import 'package:social_chat/models/auth.model.dart';
 
 import 'package:social_chat/services/shared_pref_service.dart';
 

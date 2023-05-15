@@ -10,16 +10,16 @@ class MySquareButton extends StatelessWidget {
   IconData? buttonIcon;
   Color? buttonColor;
   Color? iconColor;
-  MySquareButton(
-      {Key? key,
-      required this.onPressed,
-      this.width = 36,
-      this.height = 36,
-      this.buttonIcon = Icons.arrow_back_ios_outlined,
-      this.iconSize = 18,
-      this.iconColor,
-      this.buttonColor})
-      : super(key: key);
+  MySquareButton({
+    Key? key,
+    required this.onPressed,
+    this.width = 36,
+    this.height = 36,
+    this.buttonIcon = Icons.arrow_back_ios_outlined,
+    this.iconSize = 18,
+    this.iconColor,
+    this.buttonColor,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

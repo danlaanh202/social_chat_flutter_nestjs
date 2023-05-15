@@ -216,11 +216,12 @@ class FriendItem extends StatelessWidget {
       child: Row(
         children: [
           Container(
-              margin: const EdgeInsets.only(right: 12),
-              child: const CircleAvatar(
-                backgroundImage:
-                    AssetImage("lib/assets/images/splash_screen_image.png"),
-              )),
+            margin: const EdgeInsets.only(right: 12),
+            child: const CircleAvatar(
+              backgroundImage:
+                  AssetImage("lib/assets/images/splash_screen_image.png"),
+            ),
+          ),
           Expanded(
               child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

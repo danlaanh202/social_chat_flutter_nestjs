@@ -74,7 +74,7 @@ export class FriendService {
       throw new Error("Can't remove");
     }
   }
-  async getMyFiends(userId: any, _searchQuery = '') {
+  async getMyFiends(userId: any, _searchQuery: string = '') {
     try {
       const friends = await this.prismaService.friendRequest.findMany({
         where: {
