@@ -93,7 +93,7 @@ export class ChatService {
           },
         },
       });
-      console.log(chats);
+      // console.log(chats);
       return chats;
     } catch (error) {}
   }

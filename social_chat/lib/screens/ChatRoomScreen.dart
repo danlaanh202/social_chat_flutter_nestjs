@@ -6,6 +6,7 @@ import 'package:social_chat/models/DarkModeModel.dart';
 import 'package:social_chat/models/chatRoom.model.dart';
 import 'package:social_chat/models/message.model.dart';
 import 'package:social_chat/providers/socket.provider.dart';
+import 'package:social_chat/screens/UserScreen.dart';
 import 'package:social_chat/services/chat_services.dart';
 import 'package:social_chat/services/message_services.dart';
 import 'package:social_chat/services/shared_pref_service.dart';
@@ -91,6 +92,29 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     }
   }
 
+  void onTapToShowDialog(ctx, {darkModeModel}) async {
+    showGeneralDialog(
+      context: ctx,
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(0.0, 1.0);
+        const end = Offset.zero;
+        const curve = Curves.ease;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+      pageBuilder: (BuildContext buildContext, Animation<double> animation,
+          Animation<double> secondaryAnimation) {
+        return UserScreen(userId: _chatRoom?.members?[0].user?.id);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
@@ -107,7 +131,10 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
               IconButton(
                 onPressed: () {
                   Navigator.pushNamedAndRemoveUntil(
-                      ctx, "/home", (route) => false);
+                    ctx,
+                    "/home",
+                    (route) => false,
+                  );
                 },
                 icon: Icon(
                   Icons.arrow_back,
@@ -117,55 +144,64 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                 ),
               ),
               Expanded(
-                child: Row(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      margin: const EdgeInsets.only(
-                        right: 12,
-                      ),
-                      clipBehavior: Clip.hardEdge,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18),
-                        color: Colors.white,
-                        image: const DecorationImage(
-                          fit: BoxFit.cover,
-                          image: AssetImage(
-                            "lib/assets/images/splash_screen_image.png",
+                child: GestureDetector(
+                  onTap: () {
+                    onTapToShowDialog(
+                      context,
+                      darkModeModel:
+                          Provider.of<DarkModeModel>(context, listen: false),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        margin: const EdgeInsets.only(
+                          right: 12,
+                        ),
+                        clipBehavior: Clip.hardEdge,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(18),
+                          color: Colors.white,
+                          image: const DecorationImage(
+                            fit: BoxFit.cover,
+                            image: AssetImage(
+                              "lib/assets/images/splash_screen_image.png",
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _chatRoom?.members?[0].user?.username ??
-                                "Recipient",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: model.isDarkMode
-                                  ? Colors.white
-                                  : socialTextColorPrimary,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _chatRoom?.members?[0].user?.username ??
+                                  "Recipient",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: model.isDarkMode
+                                    ? Colors.white
+                                    : socialTextColorPrimary,
+                              ),
                             ),
-                          ),
-                          Text(
-                            "subtitle",
-                            style: TextStyle(
-                              color: model.isDarkMode
-                                  ? Colors.white
-                                  : socialTextColorPrimary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w300,
+                            Text(
+                              "subtitle",
+                              style: TextStyle(
+                                color: model.isDarkMode
+                                    ? Colors.white
+                                    : socialTextColorPrimary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w300,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    )
-                  ],
+                    ],
+                  ),
                 ),
               ),
               Row(

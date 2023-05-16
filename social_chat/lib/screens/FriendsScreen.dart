@@ -212,14 +212,15 @@ class FriendItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Row(
         children: [
           Container(
             margin: const EdgeInsets.only(right: 12),
             child: const CircleAvatar(
-              backgroundImage:
-                  AssetImage("lib/assets/images/splash_screen_image.png"),
+              backgroundImage: AssetImage(
+                "lib/assets/images/splash_screen_image.png",
+              ),
             ),
           ),
           Expanded(

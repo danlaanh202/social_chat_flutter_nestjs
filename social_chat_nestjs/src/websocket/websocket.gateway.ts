@@ -30,9 +30,9 @@ export class WebsocketGateway
 
   handleConnection(client: Socket) {
     console.log(`Người dùng đã kết nối ${client.id}`);
-    // console.log(this.userSockets);
+
     const userId = client.handshake.query.user_id as string;
-    console.log(userId);
+
     if (!this.userSockets[userId]) {
       this.userSockets[userId] = [];
     }
@@ -44,7 +44,7 @@ export class WebsocketGateway
   handleDisconnect(client: any) {
     console.log(`Người dùng đã ngắt kết nối ${client.id}`);
     const userId = client.handshake.query.user_id as string;
-    console.log(userId);
+
     const userSockets = this.userSockets[userId];
     if (userSockets) {
       const updatedSockets = userSockets.filter((s) => s.id !== client.id);

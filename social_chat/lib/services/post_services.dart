@@ -63,10 +63,10 @@ class PostServices {
     }
   }
 
-  static Future<List<Status?>> getPostsOfId() async {
+  static Future<List<Status?>> getPostsOfId(String? userId) async {
     String? accessToken =
         await SharedPreferencesServices.getData("accessToken");
-    String? userId = await SharedPreferencesServices.getData("userId");
+    // String? userId = await SharedPreferencesServices.getData("userId");
     final response = await http.get(
       Uri.parse("$_baseUrl/post/get_posts_of_id?user_id=$userId"),
       headers: <String, String>{

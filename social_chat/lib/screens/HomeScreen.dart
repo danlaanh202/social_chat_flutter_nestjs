@@ -11,6 +11,8 @@ import 'package:social_chat/screens/HomeChatScreen.dart';
 import 'package:social_chat/screens/HomeStatusScreen.dart';
 import 'package:floating_action_bubble/floating_action_bubble.dart';
 import 'package:social_chat/screens/SettingsScreen.dart';
+import 'package:social_chat/screens/UserScreen.dart';
+import 'package:social_chat/services/shared_pref_service.dart';
 import 'package:social_chat/widget/ChoosenBar.dart';
 
 import 'package:social_chat/widget/MySquareButton.dart';
@@ -75,7 +77,8 @@ class _HomeScreenState extends State<HomeScreen>
     Provider.of<SocketProvider>(context, listen: false).connect();
   }
 
-  void onTapToShowDialog(ctx, {darkModeModel, typeIndex}) {
+  void onTapToShowDialog(ctx, {darkModeModel}) async {
+    String? userId = await SharedPreferencesServices.getData("userId");
     showGeneralDialog(
       context: ctx,
       transitionBuilder: (context, animation, secondaryAnimation, child) {
@@ -93,10 +96,7 @@ class _HomeScreenState extends State<HomeScreen>
       },
       pageBuilder: (BuildContext buildContext, Animation<double> animation,
           Animation<double> secondaryAnimation) {
-        return SettingDetailDialog(
-          darkModeModel: darkModeModel,
-          type: typeIndex,
-        );
+        return UserScreen(userId: userId);
       },
     );
   }
@@ -104,8 +104,6 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
-    // final socketProvider = Provider.of<SocketProvider>(context);
-    // socketProvider.connect();
 
     return Consumer2<DarkModeModel, ActiveNavModel>(
         builder: (context, darkModeModel, activeNavModel, child) {
@@ -137,7 +135,6 @@ class _HomeScreenState extends State<HomeScreen>
                         onTapToShowDialog(
                           context,
                           darkModeModel: darkModeModel,
-                          typeIndex: 0,
                         );
                       },
                     ),

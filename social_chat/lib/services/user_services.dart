@@ -7,10 +7,10 @@ import "package:http/http.dart" as http;
 
 class UserServices {
   static String _baseUrl = "http://192.168.0.105:4000";
-  static Future<Auth?> getMyUser() async {
+  static Future<Auth?> getMyUser(String? userId) async {
     String? accessToken =
         await SharedPreferencesServices.getData("accessToken");
-    String? userId = await SharedPreferencesServices.getData("userId");
+    // String? userId = await SharedPreferencesServices.getData("userId");
     final response = await http.get(
       Uri.parse("$_baseUrl/user/get_user?user_id=$userId"),
       headers: <String, String>{
